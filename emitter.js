@@ -13,12 +13,25 @@ class Emitter {
     }
   }
 
-  constructor() {
-    this.component = document.querySelector(`[data-emitter-class=${this.constructor.name}]`);
+  childNodes() {
+    return this.component.querySelectorAll('[data-emitter-class]');
+  }
 
-    [this.component, ...this.component.querySelectorAll('*')].forEach(el => {
+  constructor(element) {
+    this.component = element;
+    this.component.instance = this;
+    this.state = typeof this.getInitialState === 'function' ? this.getInitialState() : {};
+    this.props = {};
+    this.children = {};
+
+    [this.component, ...this.component.querySelectorAll(':not([data-emitter-class])')].forEach(el => {
       el.getAttributeNames().forEach(key => {
+        this.props[key] = el.getAttribute(key);
         if (key === 'data-emitter-class') {
+          return false;
+        }
+        
+        if (key.indexOf('data-emitter-') !== 0) {
           return false;
         }
 
@@ -32,21 +45,22 @@ class Emitter {
         el.addEventListener(event, this[functionName].bind(this));
       });
     });
-
-    this.state = typeof this.getInitialState === 'function' ? this.getInitialState() : {};
-    this.props = {};
-    this.children = {};
   }
 
   static init(path = '') {
-    document.querySelectorAll('[data-emitter-class]').forEach(async (element) => {
+    document.querySelectorAll('[data-emitter-class]').forEach(element => {
       const className = element.getAttribute('data-emitter-class');
-      const script = document.createElement('script');
-      script.setAttribute('src', `${path}${className}.js`);
-      script.setAttribute('async', '');
-      script.onload = new Function(`const instance = new ${className}(${className}); return instance;`);
-
-      document.head.appendChild(script);
+      if (!document.querySelector(`script[for='${className}']`)) {
+        const script = document.createElement('script');
+        script.setAttribute('src', `${path}${className}.js`);
+        script.setAttribute('async', '');
+        script.setAttribute('for', className);
+        script.onload = () => {
+          const fn = new Function('element', `new ${className}(element)`);
+          document.querySelectorAll(`[data-emitter-class=${className}]`).forEach(element => fn(element));
+        };
+        document.head.appendChild(script);
+      }
     });   
   }
 }

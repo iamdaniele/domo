@@ -1,8 +1,7 @@
-class FizzBuzz extends Emitter {
+class OtherFizzBuzz extends Emitter {
   constructor(element) {
     super(element);
     this.children = {};
-    this.children.button = this.component.querySelector('button');
     this.children.label = this.component.querySelector('p > span');
   }
 
@@ -15,7 +14,7 @@ class FizzBuzz extends Emitter {
   }
   
   stateDidChange() {
-    this.childNodes().forEach(element => element.instance.increment());
+    // This is called after the state changes, but before the component renders.
   }
   
   render() {
