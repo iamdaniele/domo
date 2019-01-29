@@ -13,19 +13,37 @@ class Emitter {
     }
   }
 
-  constructor(state = {}) {
+  constructor() {
     this.component = document.querySelector(`[data-emitter-class=${this.constructor.name}]`);
-    this.state = state;
+
+    this.component.getAttributeNames().forEach(key => {
+      if (key === 'data-emitter-class') {
+        return false;
+      }
+
+      const event = key.replace('data-emitter-', '');
+      const functionName = this.component.getAttribute(key);
+
+      if (typeof this[functionName] !== 'function') {
+        throw new TypeError(`${this.constructor.name}.${functionName} is undefined`);
+      }
+
+      this.component.addEventListener(event, this[functionName].bind(this));
+    });
+
+    this.state = typeof this.getInitialState === 'function' ? this.getInitialState() : {};
     this.props = {};
   }
+
+  static init(path = '') {
+    document.querySelectorAll('[data-emitter-class]').forEach(async (element) => {
+      const className = element.getAttribute('data-emitter-class');
+      const script = document.createElement('script');
+      script.setAttribute('src', `${path}${className}.js`);
+      script.setAttribute('async', '');
+      script.onload = new Function(`const instance = new ${className}(${className}); return instance;`);
+
+      document.head.appendChild(script);
+    });   
+  }
 }
-
-document.querySelectorAll('[data-emitter-class]').forEach(async (element) => {
-  const className = element.getAttribute('data-emitter-class');
-  const script = document.createElement('script');
-  script.setAttribute('src', `${className}.js`);
-  script.setAttribute('async', '');
-  script.onload = new Function(`const instance = new ${className}(${className}); instance.init(); return instance;`);
-
-  document.head.appendChild(script);
-});   
