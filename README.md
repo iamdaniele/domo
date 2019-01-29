@@ -20,9 +20,9 @@ First, define your components in your HTML.
 ```html
 <html>
   <body>
-    <div data-emitter-class="FizzBuzz" data-emitter-click="increment">
+    <div data-emitter-class="FizzBuzz">
       <p>Count: <span>0</span></p>
-      <button>Count++</button>
+      <button data-emitter-click="increment">Count++</button>
     </div>
   </body>
   <script src="emitter.js"></script>
@@ -32,7 +32,7 @@ First, define your components in your HTML.
 
 You'll define the component's behavior by describing its state and the events that trigger a state change. In this simple example, you'll simply separate the render logic from the state management, and you'll describe what the component should render for your known states.
 
-By default, Emitter will dynamically load your component's class from a file named after the value of your `data-emitter-class` element (in our example, `FizzBuzz.js`.) Your component can react on any of the standard DOM events, defined as `data-emitter-*`. In this examples, `FizzBuzz` will react on `click`, since we setup `data-emitter-click`. When a click happens, `FizzBuzz.increment()` is called. Your controller will handle the click accordingly (for example, you can make it so that only the button increments the counter.)
+By default, Emitter will dynamically load your component's class from a file named after the value of your `data-emitter-class` element (in our example, `FizzBuzz.js`.) Your component can react on any of the standard DOM events, defined as `data-emitter-*`. In this example, `FizzBuzz` will react on `click`, since we setup `data-emitter-click`. When a click happens, `FizzBuzz.increment()` is called. Your controller will handle the click accordingly; for example, you can make it so that a click on any element increments counter by moving `data-emitter-click` to the component's main `div`.
 
 ```js
 class FizzBuzz extends Emitter {

@@ -16,23 +16,26 @@ class Emitter {
   constructor() {
     this.component = document.querySelector(`[data-emitter-class=${this.constructor.name}]`);
 
-    this.component.getAttributeNames().forEach(key => {
-      if (key === 'data-emitter-class') {
-        return false;
-      }
+    [this.component, ...this.component.querySelectorAll('*')].forEach(el => {
+      el.getAttributeNames().forEach(key => {
+        if (key === 'data-emitter-class') {
+          return false;
+        }
 
-      const event = key.replace('data-emitter-', '');
-      const functionName = this.component.getAttribute(key);
+        const event = key.replace('data-emitter-', '');
+        const functionName = el.getAttribute(key);
 
-      if (typeof this[functionName] !== 'function') {
-        throw new TypeError(`${this.constructor.name}.${functionName} is undefined`);
-      }
+        if (typeof this[functionName] !== 'function') {
+          throw new TypeError(`${this.constructor.name}.${functionName} is undefined`);
+        }
 
-      this.component.addEventListener(event, this[functionName].bind(this));
+        el.addEventListener(event, this[functionName].bind(this));
+      });
     });
 
     this.state = typeof this.getInitialState === 'function' ? this.getInitialState() : {};
     this.props = {};
+    this.children = {};
   }
 
   static init(path = '') {
