@@ -13,8 +13,15 @@ class Emitter {
     }
   }
 
-  childNodes() {
-    return this.component.querySelectorAll('[data-emitter-class]');
+  childNodes(className = null) {
+    let selector = '';
+    if (typeof className === 'function') {
+      selector = '=' + className.name;
+    } else if (typeof className === 'string') {
+      selector = '=' + className;
+    }
+
+    return this.component.querySelectorAll(`[e\\:class${selector}]`);
   }
 
   constructor(element) {
@@ -22,34 +29,32 @@ class Emitter {
     this.component.instance = this;
     this.state = typeof this.getInitialState === 'function' ? this.getInitialState() : {};
     this.props = {};
-    this.children = {};
 
-    [this.component, ...this.component.querySelectorAll(':not([data-emitter-class])')].forEach(el => {
+    [this.component, ...this.component.querySelectorAll(':not([e\\:class])')].forEach(el => {
       el.getAttributeNames().forEach(key => {
-        this.props[key] = el.getAttribute(key);
-        if (key === 'data-emitter-class') {
-          return false;
-        }
-        
-        if (key.indexOf('data-emitter-') !== 0) {
+        if (key === 'e:class') {
           return false;
         }
 
-        const event = key.replace('data-emitter-', '');
+        let attributeName = key.replace('e:', '').replace(/[-_\s]+(.)?/g, (match, ch) => (ch ? ch.toUpperCase() : ''));
+        attributeName = attributeName.substr(0, 1).toLowerCase() + attributeName.substr(1);
+
+        this.props[attributeName] = el.getAttribute(key);
+        
+        const event = key.replace('e:', '');
         const functionName = el.getAttribute(key);
 
-        if (typeof this[functionName] !== 'function') {
-          throw new TypeError(`${this.constructor.name}.${functionName} is undefined`);
+        if (typeof this[functionName] === 'function' && typeof window[`on${event}`] !== 'undefined') {
+          el.addEventListener(event, this[functionName].bind(this));
         }
-
-        el.addEventListener(event, this[functionName].bind(this));
+        
       });
     });
   }
 
   static init(path = '') {
-    document.querySelectorAll('[data-emitter-class]').forEach(element => {
-      const className = element.getAttribute('data-emitter-class');
+    document.querySelectorAll('[e\\:class]').forEach(element => {
+      const className = element.getAttribute('e:class');
       if (!document.querySelector(`script[for='${className}']`)) {
         const script = document.createElement('script');
         script.setAttribute('src', `${path}${className}.js`);
@@ -57,7 +62,7 @@ class Emitter {
         script.setAttribute('for', className);
         script.onload = () => {
           const fn = new Function('element', `new ${className}(element)`);
-          document.querySelectorAll(`[data-emitter-class=${className}]`).forEach(element => fn(element));
+          document.querySelectorAll(`[e\\:class=${className}]`).forEach(element => fn(element));
         };
         document.head.appendChild(script);
       }

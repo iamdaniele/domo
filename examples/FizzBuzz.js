@@ -15,7 +15,7 @@ class FizzBuzz extends Emitter {
   }
   
   stateDidChange() {
-    this.childNodes().forEach(element => element.instance.increment());
+    this.childNodes(OtherFizzBuzz).forEach(element => element.instance.increment());
   }
   
   render() {
