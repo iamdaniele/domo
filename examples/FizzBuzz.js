@@ -2,7 +2,6 @@ class FizzBuzz extends Emitter {
   constructor(element) {
     super(element);
     this.children = {};
-    this.children.button = this.component.querySelector('button');
     this.children.label = this.component.querySelector('p > span');
   }
 

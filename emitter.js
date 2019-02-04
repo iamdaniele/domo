@@ -55,6 +55,10 @@ class Emitter {
   static init(path = '') {
     document.querySelectorAll('[e\\:class]').forEach(element => {
       const className = element.getAttribute('e:class');
+      if (new Function(`return typeof ${className} !== 'undefined'`)()) {
+        return;
+      }
+
       if (!document.querySelector(`script[for='${className}']`)) {
         const script = document.createElement('script');
         script.setAttribute('src', `${path}${className}.js`);
