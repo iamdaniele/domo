@@ -1,10 +1,15 @@
 # Emitter
 
-A simple, reactive component state management library. Think React, but for the rest of us.
+A simple, reactive component state management library. Think React or Vue.js, but for the rest of us.
 
 ## Why Emitter
 
-Small projects, protoypes and rapid application development may require to iterate fast. In such cases, boilerplate code is usually kept to a minimum, and it may be desirable to use a component API with state management similar to React hooks.
+Low overhead projects, protoypes and rapid application development may require to iterate fast. In such cases, boilerplate code is usually kept to a minimum, while it may still be desirable to use a component API with state management similar to reactive hooks. Emitter can be useful when:
+
+- Your project is more important than its framework (for example, when you're building sample code for educational purposes, and you don't want your audience to understand and navigate your project dependencies)
+- You need a small library with stable APIs and a relatively slow release cycle
+- You can't be bothered with compilers, modules and packages
+- You don't need scaffolding and overstructures for your code
 
 ## Emitter principles
 
@@ -13,7 +18,7 @@ Small projects, protoypes and rapid application development may require to itera
 - Components render when their state changes (unless you prevent them from doing that)
 - Components are not opinionated and their architecture is flexible
 
-## Component lifecycle
+## Component architecture
 
 First, define your components in your HTML. Components are identified by an `e:class` attribute.
 
@@ -69,3 +74,11 @@ class FizzBuzz extends Emitter {
   }
 }
 ```
+
+## Contributing
+
+Your contributions are welcome. If you want to contribute, create an issue, fork this project and create a PR that can be reviewed. Issues can be created for bugs, new features, and items like code of conduct, roadmap and community support and guidelines.
+
+## License
+
+MIT
