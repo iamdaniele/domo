@@ -55,8 +55,9 @@ class Emitter {
   static init(path = '') {
     document.querySelectorAll('[e\\:class]').forEach(element => {
       const className = element.getAttribute('e:class');
+      const fn = new Function('element', `new ${className}(element)`);
       if (new Function(`return typeof ${className} !== 'undefined'`)()) {
-        return;
+        return fn(element);
       }
 
       if (!document.querySelector(`script[for='${className}']`)) {
@@ -65,7 +66,6 @@ class Emitter {
         script.setAttribute('async', '');
         script.setAttribute('for', className);
         script.onload = () => {
-          const fn = new Function('element', `new ${className}(element)`);
           document.querySelectorAll(`[e\\:class=${className}]`).forEach(element => fn(element));
         };
         document.head.appendChild(script);

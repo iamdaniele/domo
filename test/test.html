@@ -1,0 +1,44 @@
+<html>
+  <style>
+    html * {font-family: BlinkMacSystemFont;}
+    .test-case:before { content: "⚠️"; }
+    .test-case.success:before { content: "✅"; }
+    ul li {list-style-type: none;}
+  </style>
+  <body>
+    <ul e:class="Test">
+      <h3 class="className"></h3>
+      <li class="test-case" e:test="load">Class dynamically loaded</li>
+      <li class="test-case" e:test="initialState" e:expected='{"state":1}'>getInitialState()</li>
+      <li class="test-case" e:test="stateChange">State change</li>
+      <li class="test-case" e:test="htmlAttribute" e:expected="expected">HTML attribute parsed correctly (Emitter)</li>
+      <li class="test-case" e:test="htmlAttribute" e:expected="class">HTML attribute parsed correctly (HTML)</li>
+      <li class="test-case" e:test="htmlAttribute" e:expected="testAttribute" e:test-attribute="true">HTML attribute parsed correctly (Kebab case to camel case)</li>
+      <li class="test-case" e:test="hasHandler" e:click="handler">Event handler (add listener)</li>
+      <li class="test-case" e:test="didReceive" e:value="1">Event handler (listener dispatched event)</li>
+      <li class="test-case" e:test="childNode" e:class="ChildNode">childNodes()</li>
+      <li class="test-case" e:test="childNodeOfSpecificClass" e:class="ChildNode">childNodes(class)</li>
+    </ul>
+    <ul e:class="InlineTest">
+      <h3 class="className"></h3>
+      <li class="test-case">Inline class loaded</li>
+    </ul>
+  </body>
+  <script src="../emitter.js"></script>
+  <script>
+    class ChildNode extends Emitter {}
+    class InlineTest extends Emitter {
+      constructor(el) {
+        super(el);
+        this.testCase = this.component.querySelector('.test-case');
+        this.testCase.setAttribute('class', 'test-case success');
+        this.setState({render: 1});
+      }
+
+      render() {
+        this.component.querySelector('.className').innerText = this.constructor.name;
+      }
+    }
+  </script>
+  <script>Emitter.init()</script>
+</html>
