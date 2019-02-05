@@ -41,8 +41,8 @@ By default, Emitter will dynamically load your component's class from a file nam
 
 ```js
 class FizzBuzz extends Emitter {
-  constructor() {
-    super();
+  constructor(component) {
+    super(component);
     this.label = this.component.querySelector('p > span');
   }
 
@@ -74,6 +74,16 @@ class FizzBuzz extends Emitter {
   }
 }
 ```
+
+## Component lifecycle
+
+1. `constructor(component)` gets called first. This is where your init logic should be. Always remember to call `super(component)` first thing.
+1. `getInitialState()` (optional) contains your initial state. This can be used to initialize your state ahead of a render. No render will occur as a result of specifying this state.
+1. `setState(state)` accepts the new state. If the state is different from the current state, a render will occur. If you provide the exact same state, no rendering will occur.
+1. `stateDidChange()` (optional) triggers if the state changed. This is useful to trigger any non-render activities, like fetching.
+1. `render()` (optional) triggers if the state changed. This is where your DOM manipulation should occur as a result of a state change.
+
+DOM events attached to your component via `e:*` will cause this flow only if they call `setState()`.
 
 ## Contributing
 
