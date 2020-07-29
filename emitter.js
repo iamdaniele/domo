@@ -13,6 +13,8 @@ class Emitter {
     }
   }
 
+  didReceiveData(data) {}
+
   childNodes(className = null) {
     let selector = '';
     if (typeof className === 'function') {
@@ -54,15 +56,9 @@ class Emitter {
 
   static registry = new WeakMap();
 
-  static el(element) {
-    return new Promise((resolve, reject) => {
-      if (!Emitter.registry.has(element)) {
-        return reject(undefined);
-      }
-
-      return resolve(element);
-
-    });
+  static async fetch(fetchFn) {
+    const data = await fetchFn;
+    document.querySelectorAll('[e\\:class]').forEach(el => Emitter.registry.get(el).didReceiveData(data));
   }
 
   static init(path = '') {
@@ -73,10 +69,9 @@ class Emitter {
           return;
         }
         const className = element.getAttribute('e:class');
-        const fn = new Function('element', `new ${className}(element)`);
+        const fn = new Function('element', `return new ${className}(element)`);
         if (new Function(`return typeof ${className} !== 'undefined'`)()) {
-          const f = fn(element)
-          Emitter.registry.set(element, f);
+          Emitter.registry.set(element, fn(element));
         }
 
         if (!document.querySelector(`script[for='${className}']`)) {
