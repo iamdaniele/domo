@@ -52,24 +52,50 @@ class Emitter {
     });
   }
 
-  static init(path = '') {
-    document.querySelectorAll('[e\\:class]').forEach(element => {
-      const className = element.getAttribute('e:class');
-      const fn = new Function('element', `new ${className}(element)`);
-      if (new Function(`return typeof ${className} !== 'undefined'`)()) {
-        return fn(element);
+  static registry = new WeakMap();
+
+  static el(element) {
+    return new Promise((resolve, reject) => {
+      if (!Emitter.registry.has(element)) {
+        return reject(undefined);
       }
 
-      if (!document.querySelector(`script[for='${className}']`)) {
-        const script = document.createElement('script');
-        script.setAttribute('src', `${path}${className}.js`);
-        script.setAttribute('async', '');
-        script.setAttribute('for', className);
-        script.onload = () => {
-          document.querySelectorAll(`[e\\:class=${className}]`).forEach(element => fn(element));
-        };
-        document.head.appendChild(script);
-      }
-    });   
+      return resolve(element);
+
+    });
+  }
+
+  static init(path = '') {
+    const elements = document.querySelectorAll('[e\\:class]');
+    const initFn = (elements) => 
+      elements.forEach(element => {
+        if (typeof element.getAttribute === 'undefined' || Emitter.registry.has(element)) {
+          return;
+        }
+        const className = element.getAttribute('e:class');
+        const fn = new Function('element', `new ${className}(element)`);
+        if (new Function(`return typeof ${className} !== 'undefined'`)()) {
+          const f = fn(element)
+          Emitter.registry.set(element, f);
+        }
+
+        if (!document.querySelector(`script[for='${className}']`)) {
+          const script = document.createElement('script');
+          script.setAttribute('src', `${path}${className}.js`);
+          script.setAttribute('async', '');
+          script.setAttribute('for', className);
+          script.onload = () => {
+            document.querySelectorAll(`[e\\:class=${className}]`).forEach(element => Emitter.registry.set(element, fn(element)));
+          };
+          document.head.appendChild(script);
+        }
+      });   
+
+      const observer = new MutationObserver((mutations) => {
+        const addedNodeLists = mutations.map(mutation => mutation.addedNodes);
+        addedNodeLists.forEach(nodeList => initFn(nodeList));
+      });
+      observer.observe(document.body, {childList: true});
+      initFn(elements);
   }
 }
