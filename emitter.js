@@ -56,18 +56,24 @@ class Emitter {
 
   static registry = new WeakMap();
 
-  static async fetch(fetchFn) {
-    const data = await fetchFn;
+  static async dispatch(dispatchFn) {
+    const data = dispatchFn instanceof Promise ? await dispatchFn : dispatchFn;
     document.querySelectorAll('[e\\:class]').forEach(el => Emitter.registry.get(el).didReceiveData(data));
+    return data;
   }
 
   static init(path = '') {
     const elements = document.querySelectorAll('[e\\:class]');
     const initFn = (elements) => 
       elements.forEach(element => {
-        if (typeof element.getAttribute === 'undefined' || Emitter.registry.has(element)) {
+        if (typeof element.hasAttribute === 'undefined' || Emitter.registry.has(element)) {
           return;
         }
+
+        if (!element.hasAttribute('e:class')) {
+          return;
+        }
+
         const className = element.getAttribute('e:class');
         const fn = new Function('element', `return new ${className}(element)`);
         if (new Function(`return typeof ${className} !== 'undefined'`)()) {
@@ -90,7 +96,7 @@ class Emitter {
         const addedNodeLists = mutations.map(mutation => mutation.addedNodes);
         addedNodeLists.forEach(nodeList => initFn(nodeList));
       });
-      observer.observe(document.body, {childList: true});
+      observer.observe(document.body, {subtree: true, childList: true});
       initFn(elements);
   }
 }
