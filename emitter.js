@@ -9,11 +9,13 @@ class Emitter {
     if (oldstate !== newstate) {
       this.state = Object.assign(this.state, JSON.parse(newstate));
       typeof this.stateDidChange === 'function' ? this.stateDidChange() : null;
-      typeof this.render === 'function' ? this.render() : null;
+      this.willRender() && this.render();
     }
   }
-
+  
   didReceiveData(data) {}
+  render() {}
+  willRender() {return true}
 
   childNodes(className = null) {
     let selector = '';
@@ -54,18 +56,20 @@ class Emitter {
     });
   }
 
-  static registry = new WeakMap();
-
   static async dispatch(dispatchFn) {
     const data = dispatchFn instanceof Promise ? await dispatchFn : dispatchFn;
-    document.querySelectorAll('[e\\:class]').forEach(el => Emitter.registry.get(el).didReceiveData(data));
+    document.querySelectorAll('[e\\:class]').forEach(el => Emitter.registry.get(el)?.didReceiveData(data));
     return data;
   }
 
   static init(path = '') {
     const elements = document.querySelectorAll('[e\\:class]');
-    const initFn = (elements) => 
+    const initFn = (elements) =>
       elements.forEach(element => {
+        if (element.childElementCount) {
+          initFn(element.childNodes);
+        }
+
         if (typeof element.hasAttribute === 'undefined' || Emitter.registry.has(element)) {
           return;
         }
@@ -73,11 +77,12 @@ class Emitter {
         if (!element.hasAttribute('e:class')) {
           return;
         }
-
+        
         const className = element.getAttribute('e:class');
         const fn = new Function('element', `return new ${className}(element)`);
         if (new Function(`return typeof ${className} !== 'undefined'`)()) {
           Emitter.registry.set(element, fn(element));
+          element.instance.willRender() && element.instance.render();
         }
 
         if (!document.querySelector(`script[for='${className}']`)) {
@@ -86,17 +91,35 @@ class Emitter {
           script.setAttribute('async', '');
           script.setAttribute('for', className);
           script.onload = () => {
-            document.querySelectorAll(`[e\\:class=${className}]`).forEach(element => Emitter.registry.set(element, fn(element)));
+            document.querySelectorAll(`[e\\:class=${className}]`).forEach(element => {
+              Emitter.registry.set(element, fn(element));
+              element.instance.willRender() && element.instance.render();
+            });
           };
           document.head.appendChild(script);
         }
-      });   
+      });
 
       const observer = new MutationObserver((mutations) => {
-        const addedNodeLists = mutations.map(mutation => mutation.addedNodes);
-        addedNodeLists.forEach(nodeList => initFn(nodeList));
+        mutations.forEach(mutation => {
+          if (mutation.type === 'attributes' && mutation.attributeName.match(/data-/) && mutation.target.hasAttribute('e:class') && mutation.target.instance) {
+            mutation.target.instance.willRender() && mutation.target.instance.render();
+          } else {
+            initFn(mutation.addedNodes);
+          }
+        });
       });
-      observer.observe(document.body, {subtree: true, childList: true});
+      observer.observe(document.body, {attributes: true, subtree: true, childList: true});
       initFn(elements);
   }
 }
+Emitter.registry = new WeakMap();
+Emitter.template = new Proxy({}, {
+  get(target, prop, receiver) {
+    const template = document.querySelector(`template[for="${prop}"]`);
+    if (!template) {
+      throw new Error(`Cannot find ${prop} template`);
+    }
+    return document.querySelector(`template[for="${prop}"]`).content.firstElementChild.cloneNode(true);
+  }
+});
