@@ -81,7 +81,8 @@ class FizzBuzz extends Emitter {
 1. `getInitialState()` (optional) contains your initial state. This can be used to initialize your state ahead of a render. No render will occur as a result of specifying this state.
 1. `setState(state)` accepts the new state. If the state is different from the current state, a render will occur. If you provide the exact same state, no rendering will occur.
 1. `stateDidChange()` (optional) triggers if the state changed. This is useful to trigger any non-render activities, like fetching.
-1. `render()` (optional) triggers if the state changed. This is where your DOM manipulation should occur as a result of a state change.
+2. `componentWillRender()` (optional) triggers before rendering a component. It can be used to detect circumstances where rendering is not needed. Simply return a falsey value to avoid rendering.
+3. `render()` (optional) triggers if the state changed, and only if `componentWillRender()` returned a non-falsey value. This is where your DOM manipulation should occur as a result of a state change.
 
 DOM events attached to your component via `e:*` will cause this flow only if they call `setState()`.
 
