@@ -109,7 +109,8 @@ class Emitter {
           }
         });
       });
-      observer.observe(document.body, {attributes: true, subtree: true, childList: true});
+      // Attribute changes is currently disabled, but working. Set to true to enable.
+      observer.observe(document.body, {attributes: false, subtree: true, childList: true});
       initFn(elements);
   }
 }
