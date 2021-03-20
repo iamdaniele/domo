@@ -81,10 +81,87 @@ class FizzBuzz extends Emitter {
 1. `getInitialState()` (optional) contains your initial state. This can be used to initialize your state ahead of a render. No render will occur as a result of specifying this state.
 1. `setState(state)` accepts the new state. If the state is different from the current state, a render will occur. If you provide the exact same state, no rendering will occur.
 1. `stateDidChange()` (optional) triggers if the state changed. This is useful to trigger any non-render activities, like fetching.
-2. `componentWillRender()` (optional) triggers before rendering a component. It can be used to detect circumstances where rendering is not needed. Simply return a falsey value to avoid rendering.
-3. `render()` (optional) triggers if the state changed, and only if `componentWillRender()` returned a non-falsey value. This is where your DOM manipulation should occur as a result of a state change.
+1. `didUpdateDataset()` (optional) triggers if the any of the component's `data-` attributes changed. This is useful to trigger a state change on DOM attribute changes.
+1. `didReceiveData()` (optional) triggers if the component received a dispatched event. This is useful to capture HTTP requests coming from other components, and acts as a sort of event bus across components.
+3. `componentWillRender()` (optional) triggers before rendering a component. It can be used to detect circumstances where rendering is not needed. Simply return a falsey value to avoid rendering.
+4. `render()` (optional) triggers if the state changed, and only if `componentWillRender()` returned a non-falsey value. This is where your DOM manipulation should occur as a result of a state change.
 
 DOM events attached to your component via `e:*` will cause this flow only if they call `setState()`.
+
+## Fetching and receiving data
+
+There are circumstances where your component needs to act on the results of data requested by another component, or when multiple independent components may need to use and render data coming from the same request. Emitter enables this pattern through `Emitter.dispatch()` and `didReceiveData()`. Anything sent via `Emitter.dispact()` will be available to any component that implements `didReceiveData()`.
+
+```js
+// You can dispatch data wherever Emitter is in scope.
+
+Emitter.dispatch(await fetch('/pet/brownie/sound')); // returns {"name": "Brownie", "sound": "meow"}
+Emitter.dispatch(await fetch('/pet/brownie/age')); // returns {"name": "Brownie", "age": 5}
+
+class PetSound extends Emitter {
+  didReceiveData(data) {
+    if (!data.url.match(\/pet/\w+\/sound$/) {
+      return;
+    }
+
+    const response = await data.json();
+    this.setState(response);
+  }
+  
+  render() {
+    this.component.innerText = `${name} goes ${sound}`;
+  }
+}
+
+class PetAge extends Emitter {
+  didReceiveData(data) {
+    if (!data.url.match(\/pet/\w+\/age$/) {
+      return;
+    }
+
+    const response = await data.json();
+    this.setState(response);
+  }
+  
+  render() {
+    this.component.innerText = `${name} is ${age}`;
+  }
+}
+```
+
+## Templates
+
+Sometimes you may need to render more than one element of the same type, for example rows in a table. In this case, you can specify `<template>` element with a `for` attribute; define the DOM structure for your Emitter component inside this tag. These components are automatically cloned and initialized for you. Make sure the template's `for` value matches the `e:class` value.
+
+```html
+<body>
+  <template for="PetName">
+    <div e:class="PetName">/div>
+  </template>
+  <div e:class="Pet"></div>
+</body>
+```
+```js
+class PetName extends Emitter {
+  set name(value) { this.setState({name: value}) }
+  render() {
+    this.component.innerText = this.state.sound;
+  }
+}
+
+class Pet extends Emitter {
+  constructor() {
+    this.kitties = ['Bean', 'Brownie'];
+  }
+  render() {
+    this.kitties.map(name => {
+      const kitten = Emitter.template.PetName;
+      kitten.name = name;
+      this.component.appendChild(kitten);
+    });
+  }
+}
+```
 
 ## Contributing
 
