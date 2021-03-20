@@ -8,12 +8,14 @@ class Emitter {
     const oldstate = JSON.stringify(this.state);
     if (oldstate !== newstate) {
       this.state = Object.assign(this.state, JSON.parse(newstate));
-      typeof this.stateDidChange === 'function' ? this.stateDidChange() : null;
+      this.stateDidChange();
       this.willRender() && this.render();
     }
   }
   
   didReceiveData(data) {}
+  didUpdateDataset(data) {}
+  stateDidChange() {}
   render() {}
   willRender() {return true}
 
@@ -103,14 +105,13 @@ class Emitter {
       const observer = new MutationObserver((mutations) => {
         mutations.forEach(mutation => {
           if (mutation.type === 'attributes' && mutation.attributeName.match(/data-/) && mutation.target.hasAttribute('e:class') && mutation.target.instance) {
-            mutation.target.instance.willRender() && mutation.target.instance.render();
+            mutation.target.instance.didUpdateDataset(mutation.dataset);
           } else {
             initFn(mutation.addedNodes);
           }
         });
       });
-      // Attribute changes is currently disabled, but working. Set to true to enable.
-      observer.observe(document.body, {attributes: false, subtree: true, childList: true});
+      observer.observe(document.body, {attributes: true, subtree: true, childList: true});
       initFn(elements);
   }
 }
