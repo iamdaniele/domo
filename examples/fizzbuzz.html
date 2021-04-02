@@ -1,19 +1,20 @@
 <html>
-  <body e:class="App" e:tickinterval="1000">
-    <label style="display:block"><input type="checkbox" e:change="toggleClick" />Increment every second</label>
-    <div e:class="FizzBuzz">
+  <body e="/examples/App.js" data-tickinterval="1000">
+    <label style="display:block"><input type="checkbox" data-change="toggleClick" />Increment every second</label>
+    <div e="/examples/fizzbuzz.js:FizzBuzz">
       <p>Count: <span>0</span></p>
-      <button e:click="increment">Count++</button>
+      <button data-click="increment">Count++</button>
     </div>
-    <div e:class="FizzBuzz">
+    <div e="/examples/fizzbuzz.js:FizzBuzz">
       <p>Count: <span>0</span></p>
-      <button e:click="increment">Count++</button>
-      <div e:class="OtherFizzBuzz">
+      <button data-click="increment">Count++</button>
+      <div e="/examples/fizzbuzz.js:OtherFizzBuzz">
         <p>Count: <span>0</span></p>
       </div>
     </div>
-
   </body>
-  <script src="../emitter.js"></script>
-  <script>Emitter.init()</script>
+  <script type="module">
+    import Emitter from '/emitter.js';
+    Emitter.init();
+  </script>
 </html>

@@ -20,27 +20,31 @@ Low overhead projects, protoypes and rapid application development may require t
 
 ## Component architecture
 
-First, define your components in your HTML. Components are identified by an `e:class` attribute.
+First, define your components in your HTML. Components are identified by an `e` attribute, in the format `e="/path/to/component[:className]"` (`className` is optional and can be specified if you have more than one class in a file).
 
 ```html
 <html>
   <body>
-    <div e:class="FizzBuzz">
+    <div e="/fizzbuzz.js">
       <p>Count: <span>0</span></p>
-      <button e:click="increment">Count++</button>
+      <button data-click="increment">Count++</button>
     </div>
   </body>
-  <script src="emitter.js"></script>
-  <script>Emitter.init()</script>
+  <script type="module">
+    import Emitter from '/emitter.js';
+    Emitter.init();
+  </script>
 </html>
 ```
 
-You'll define the component's behavior by describing its state and the events that trigger a state change. In this simple example, you'll simply separate the render logic from the state management, and you'll describe what the component should render for your known states. All your defined HTML attributes will be available in your component's `this.props` dictionary (for example, an `id` attribute will be available as `this.props.id`.)
+You'll define the component's behavior by describing its state and the events that trigger a state change. In this simple example, you separate the render logic from the state management, and you'll describe what the component should render for your known states. All your defined HTML `data-` attributes will be available in your component's `this.dataset` dictionary.
 
-By default, Emitter will dynamically load your component's class from a file named after the value of your `e:class` element (in our example, `FizzBuzz.js`.) Your component can react on any of the standard DOM events, defined as `e:*`. In this example, `FizzBuzz` will react on `click`, since we setup `e:click`. When a click happens, `FizzBuzz.increment()` is called. Your controller will handle the click accordingly; for example, you can make it so that a click on any element increments counter by moving `e:click` to the component's main `div`.
+By default, Emitter will dynamically load your component's class from a file named after the value of your `e` attribute (in our example, the default export of `fizzbuzz.js`.) Your component can react on any of the standard DOM events, if specified as `data-*`. In this example, `FizzBuzz` will react on `click`, since we setup `data-click`. When a click happens, `FizzBuzz.increment()` is called.
 
 ```js
-class FizzBuzz extends Emitter {
+import Emitter from '/emitter.js';
+
+export default class FizzBuzz extends Emitter {
   constructor(component) {
     super(component);
     this.label = this.component.querySelector('p > span');
@@ -54,11 +58,15 @@ class FizzBuzz extends Emitter {
     if (event.target === this.props.button) {
       this.setState({count: this.state.count + 1});  
     }
-    
+  }
+
+  componentWillRender() {
+    // This optional method is called before the component can render.
+    // Return true to render; return false to prevent rendering.
   }
   
   stateDidChange() {
-    // This is called after the state changes, but before the component renders.
+    // This optional method is called after the state changes, but before the component renders.
   }
   
   render() {
@@ -83,7 +91,7 @@ class FizzBuzz extends Emitter {
 1. `stateDidChange()` (optional) triggers if the state changed. This is useful to trigger any non-render activities, like fetching.
 1. `didUpdateDataset()` (optional) triggers if the any of the component's `data-` attributes changed. This is useful to trigger a state change on DOM attribute changes.
 1. `didReceiveData()` (optional) triggers if the component received a dispatched event. This is useful to capture HTTP requests coming from other components, and acts as a sort of event bus across components.
-3. `componentWillRender()` (optional) triggers before rendering a component. It can be used to detect circumstances where rendering is not needed. Simply return a falsey value to avoid rendering.
+3. `willRender()` (optional) triggers before rendering a component. It can be used to detect circumstances where rendering is not needed. Simply return a falsey value to avoid rendering.
 4. `render()` (optional) triggers if the state changed, and only if `componentWillRender()` returned a non-falsey value. This is where your DOM manipulation should occur as a result of a state change.
 
 DOM events attached to your component via `e:*` will cause this flow only if they call `setState()`.

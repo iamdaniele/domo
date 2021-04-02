@@ -1,15 +1,16 @@
-class Test extends Emitter {
+import Emitter from '/emitter.js';
+
+export default class GeneralTest extends Emitter {
   constructor(component) {
     super(component);
-    this.setState({render: 1});
     this.tests = this.component.querySelectorAll('[data-test]');
     this.tests.forEach(el => {
       if (this[el.dataset.test](el)) {
         el.classList.add('success');
       }
     });
-  }
 
+  }
   load() {
     return true;
   }
@@ -27,11 +28,15 @@ class Test extends Emitter {
   }
 
   childNode() {
-    return this.childNodes().length === 2;
+    return this.childNodes().length === 3;
   }
 
   childNodeOfSpecificClass() {
-    return this.childNodes(ChildNode).length === 2;
+    return this.childNodes(ChildNode).length === 3;
+  }
+
+  childNodeSelectNone() {
+    return this.childNodes(Number).length === 0;
   }
 
   stateChange() {
@@ -63,5 +68,22 @@ class Test extends Emitter {
 
   render() {
     this.component.querySelector('.className').innerText = this.constructor.name;
+  }
+}
+
+export class ChildNode extends Emitter {}
+
+export class ComponentWillRender extends Emitter {
+  constructor(element) {
+    super(element);
+    this.item = this.component.querySelector('li');
+  }
+
+  willRender() {
+    return false;
+  }
+
+  render() {
+    this.item.classList.remove('success');
   }
 }

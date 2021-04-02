@@ -1,8 +1,10 @@
-class FizzBuzz extends Emitter {
+import Emitter from '/emitter.js';
+
+export default class FizzBuzz extends Emitter {
   constructor(element) {
     super(element);
-    this.children = {};
-    this.children.label = this.component.querySelector('p > span');
+    console.log(element)
+    this.label = this.component.querySelector('p > span');
   }
 
   getInitialState() {
@@ -16,16 +18,23 @@ class FizzBuzz extends Emitter {
   stateDidChange() {
     this.childNodes(OtherFizzBuzz).forEach(element => element.instance.increment());
   }
+
+  componentWillRender() {
+    console.log(this.state.count > 0)
+    return this.state.count > 0;
+  }
   
   render() {
     if (this.state.count % 15 === 0) {
-      this.children.label.innerText = 'FizzBuzz!';
+      this.label.innerText = 'FizzBuzz!';
     } else if (this.state.count % 3 === 0) {
-      this.children.label.innerText = 'Fizz!';  
+      this.label.innerText = 'Fizz!';  
     } else if (this.state.count % 5 === 0) {
-      this.children.label.innerText = 'Buzz!';  
+      this.label.innerText = 'Buzz!';  
     } else {
-      this.children.label.innerText = '' + this.state.count;
+      this.label.innerText = '' + this.state.count;
     }
   }
 }
+
+export class OtherFizzBuzz extends FizzBuzz { }

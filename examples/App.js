@@ -1,4 +1,7 @@
-class App extends Emitter {
+import Emitter from '/emitter.js';
+import FizzBuzz from '/examples/fizzbuzz.js';
+
+export default class App extends Emitter {
   constructor(component) {
     super(component);
     this.timer = null;
@@ -16,7 +19,7 @@ class App extends Emitter {
     if (this.state.shouldAutoIncrement) {
       this.timer = setInterval(
         () => this.childNodes(FizzBuzz).forEach(el => el.instance.increment()),
-        this.props.tickinterval);
+        this.dataset.tickinterval);
     } else {
       clearInterval(this.timer);
     }

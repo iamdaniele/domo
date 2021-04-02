@@ -1,14 +1,13 @@
-class DispatchAction {
-  get testValue() { return 42; }
+import { dispatch } from '/emitter.js';
+import EmitterTest from '/test/EmitterTest.js'
+
+export class DispatchAction {
+  get testValue() { return "test value"; }
 }
 
-class Dispatcher extends EmitterTest {
-  constructor(element) {
-    super(element);
-  }
-
+export default class Dispatcher extends EmitterTest {
   willRender() {
-    Emitter.dispatch(new DispatchAction());
+    dispatch(new DispatchAction());
     return true;
   }
 
