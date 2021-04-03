@@ -25,7 +25,7 @@ const init = (target = document) => target.querySelectorAll('*').forEach(async e
   }
   const tag = el.tagName.toLowerCase();
   const href = document.querySelector('link[rel="components"]')?.href;
-  const path = `./${tag}.js`;
+  const path = el.getAttribute('module');
 
   try {
     const module = await import(href || path);
