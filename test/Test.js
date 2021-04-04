@@ -2,9 +2,9 @@ class Test extends Emitter {
   constructor(component) {
     super(component);
     this.setState({render: 1});
-    this.tests = this.component.querySelectorAll('[e\\:test]');
+    this.tests = this.component.querySelectorAll('[data-test]');
     this.tests.forEach(el => {
-      if (this[el.getAttribute('e:test')](el)) {
+      if (this[el.dataset.test](el)) {
         el.classList.add('success');
       }
     });
@@ -15,7 +15,7 @@ class Test extends Emitter {
   }
 
   htmlAttribute(el) {
-    return !!this.props[this.props.expected];
+    return !!el.dataset[el.dataset.expected];
   }
 
   getInitialState() {
@@ -23,7 +23,7 @@ class Test extends Emitter {
   }
 
   initialState(el) {
-    return JSON.stringify(this.getInitialState()) === el.getAttribute('e:expected');
+    return JSON.stringify(this.getInitialState()) === el.dataset.expected;
   }
 
   childNode() {
@@ -48,17 +48,17 @@ class Test extends Emitter {
   }
 
   handler() {
-    this.props.valueFromClick = '1';
+    this.dataset.valueFromClick = '1';
   }
 
   hasHandler(el) {
-    return !!this.props.click;
+    return !!el.dataset.click;
   }
 
   didReceive(el) {
-    this.component.querySelector('[e\\:click]').click();
-    return typeof this.props.valueFromClick !== 'undefined'
-      && this.props.valueFromClick === el.getAttribute('e:value');
+    this.component.querySelector('[data-click]').click();
+    return typeof this.dataset.valueFromClick !== 'undefined'
+      && this.dataset.valueFromClick === el.dataset.value;
   }
 
   render() {
