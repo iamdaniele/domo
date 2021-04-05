@@ -81,7 +81,7 @@ export default class FizzBuzz extends Domo {
 
 ## DOM diffing
 
-Domo implements a DOM diffing algorithm to speed up rendering. When you build the HTML for your component in `render()`, you simply have to define what the component looks like. When `render()` triggers, Domo will determine what elements have changed by comparing your new component's HTML with the current DOM tree. Domo will render only the components who have been added, changed, or removed. Here's how the algorithm works:
+Domo implements a DOM diffing algorithm to speed up rendering. When you build the HTML for your component in `render()`, you simply have to define what the component looks like. When `render()` triggers, Domo will determine what elements have changed by comparing your new component's HTML with the current DOM tree. Domo will render only the components that changed, and keep the rest of your component intact. Here's how the algorithm works:
 
 1. It removes unneeded nodes at the end of the current DOM (for example, nodes that have been removed in the new DOM).
 1. It adds new nodes to the end of the current DOM (for examples, nodes that have been added in the new DOM and weren't present before)
