@@ -1,6 +1,6 @@
-import Emitter, {html} from '/emitter.js';
+import Domo, {html} from '/domo.js';
 
-export class FizzBuzz extends Emitter {
+export class FizzBuzz extends Domo {
   constructor(component) {
     super(component);
     this.timer = null;
