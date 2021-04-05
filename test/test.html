@@ -1,107 +1,19 @@
 <html>
-  <style>
-    html * {font-family: BlinkMacSystemFont;}
-    code {font-family: Monaco, monospace;}
-    .test-case:before { content: "⚠️ "; }
-    .test-case.success:before { content: "✅ "; }
-    ul li {list-style-type: none;}
-  </style>
+  <head>
+    <style>
+      html * {font-family: BlinkMacSystemFont;}
+      code {font-family: Monaco, monospace;}
+      .test-case:before { content: "⚠️ "; }
+      .test-case.success:before { content: "✅ "; }
+      ul li {list-style-type: none;}
+    </style>
+    <link rel="components" href="/test/components.js" />  
+  </head>
   <body>
-    <ul e:class="Test">
-      <h3 class="className"></h3>
-      <li class="test-case" data-test="load">Class dynamically loaded</li>
-      <li class="test-case" data-test="initialState" data-expected='{"state":1}'>getInitialState()</li>
-      <li class="test-case" data-test="stateChange">State change</li>
-      <li class="test-case" data-test="htmlAttribute" data-expected="expected">HTML attribute parsed correctly (Emitter)</li>
-      <li class="test-case" data-test="hasHandler" data-click="handler">Event handler (add listener)</li>
-      <li class="test-case" data-test="didReceive" data-value="1">Event handler (listener dispatched event)</li>
-      <li class="test-case" data-test="childNode" e:class="ChildNode">childNodes()</li>
-      <li class="test-case" data-test="childNodeOfSpecificClass" e:class="ChildNode">childNodes(class)</li>
-    </ul>
-    <ul e:class="Template">
-      <h3 class="className"></h3>
-    </ul>
-    <ul e:class="ComponentWillRender">
-      <h3 class="className">ComponentWillRender</h3>
-      <li class="test-case success">willRender() <code>false</code> prevented rendering</li>
-    </ul>
-    <ul e:class="InlineTest">
-      <h3 class="className"></h3>
-      <li class="test-case">Inline class loaded</li>
-    </ul>
-    <ul e:class="Dispatcher">
-      <h3 class="className"></h3>
-      <li class="test-case" data-test="send">Dispatch sent</li>
-      <li class="test-case" e:class="DispatchReceiver" data-test="receive">Dispatch received</li>
-    </ul>
-    <ul e:class="DatasetChange">
-      <h3 class="className"></h3>
-      <li class="test-case" e:class="DatasetChangeExistingValue" data-expected="42" data-value="0">Dataset changed (existing value)</li>
-      <li class="test-case" e:class="DatasetAddNewValue">Dataset changed (add new value)</li>
-      <li class="test-case" e:class="DatasetDeleteValue" data-value="42">Dataset changed (delete value)</li>
-    </ul>
-    <template for="Template">
-      <li class="test-case success" hidden>Template found</li>
-    </template>
-
-    <template for="TemplateWithEmitterClass">
-      <li e:class="TemplateWithEmitterClass" class="test-case success" hidden></li>
-    </template>
+    <domo-test></domo-test>
+    <script type="module">
+      import {init} from '/domo.js';
+      init(document.querySelector('domo-test'));
+    </script>
   </body>
-  <script src="../emitter.js"></script>
-  <script>
-    class EmitterTest extends Emitter {
-      constructor(element) {
-        super(element);
-        this.header = this.component.querySelector('.className');
-      }
-      render() {
-        this.header.innerText = this.constructor.name;
-      }
-    }
-
-    class DatasetChangeTest extends Emitter {
-      getInitialState() {
-        return {success: false};
-      }
-
-      componentWillRender() {
-        return this.state.success;
-      }
-
-      render() {
-        this.component.classList.add('success');
-      }
-    }
-
-    class ChildNode extends Emitter {}
-
-    class ComponentWillRender extends Emitter {
-      constructor(element) {
-        super(element);
-        this.item = this.component.querySelector('li');
-      }
-
-      willRender() {
-        return false;
-      }
-
-      render() {
-        this.item.classList.remove('success');
-      }
-    }
-    
-    class InlineTest extends EmitterTest {
-      constructor(el) {
-        super(el);
-        this.testCase = this.component.querySelector('.test-case');
-      }
-
-      render() {
-        super.render()
-        this.testCase.setAttribute('class', 'test-case success');
-      }
-    }
-  </script>
-  <script>Emitter.init()</script>
 </html>
