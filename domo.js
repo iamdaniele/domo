@@ -101,7 +101,14 @@ const setupListeners = (component, element) => {
   
   return element.getAttributeNames()
     .filter(key => key.match(/^on\-/))
-    .map(key => element.addEventListener(key.replace('on-', ''), component[element.getAttribute(key)].bind(component), false));
+    .map(key => {
+      if (component[element.getAttribute(key)] instanceof Function) {
+        element.addEventListener(key.replace('on-', ''), component[element.getAttribute(key)].bind(component), false)        
+      } else {
+        throw new Error(`<${element.tagName.toLowerCase()} ${key}="${element.getAttribute(key)}"> references the undefined method ${element.getAttribute(key)}. Check that the method is defined in <${component.tagName.toLowerCase()}>.`);
+
+      }
+    });
 }
 
 const render = element => {
@@ -129,7 +136,7 @@ export default class extends HTMLElement {
         if (mutation.addedNodes) {
           Array
             .from(mutation.addedNodes)
-            .map(el => init(el) && el.getAttributeNames && setupListeners(this, el))
+            .map(el => !!init(el) && !!el.getAttributeNames && setupListeners(this, el))
         }
         
         if (mutation.type === 'attributes' && mutation.target.tagName.includes('-') && mutation.attributeName.match(/data-/)) {
