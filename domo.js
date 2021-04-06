@@ -82,12 +82,13 @@ const init = async (el) => {
   const href = document.querySelector('link[rel="components"]')?.href;
   const path = el.getAttribute('module');
   const module = await import(href || path);    
-  
+
   if (!customElements.get(tag)) {
     try {
       customElements.define(tag, href ? module[classNameFromTag(tag)] : module.default);  
       await customElements.whenDefined(tag);
-    } catch (e) { }
+    } catch (e) { console.error(`Could not initialize <${tag}>. Check that the component exist and that is has been imported. (${e.message})`); }
+    
   }
 };
 
@@ -131,11 +132,12 @@ export default class extends HTMLElement {
             .map(el => init(el) && el.getAttributeNames && setupListeners(this, el))
         }
         
-        if (mutation.type === 'attributes' && mutation.attributeName.match(/data-/)) {
+        if (mutation.type === 'attributes' && mutation.target.tagName.includes('-') && mutation.attributeName.match(/data-/)) {
           const datasetKey = mutation.attributeName.replace('data-', '');
-          mutation.newValue = mutation.target.dataset[datasetKey];
-          mutation.datasetKey = datasetKey;
-          this.didUpdateDataset(mutation);
+          mutation.newValue = mutation.target.getAttribute(mutation.attributeName);
+          mutation.datasetKey = classNameFromTag(datasetKey);
+          mutation.datasetKey = mutation.datasetKey.charAt(0).toLowerCase() + mutation.datasetKey.slice(1);
+          mutation.target.didUpdateDataset(mutation);
         }
       });
     }).observe(this.shadowRoot, {attributes: true, childList: true, subtree: true, attributeOldValue: true});
