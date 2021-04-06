@@ -1,19 +1,16 @@
 <html>
   <head>
     <style>
-      html * {font-family: BlinkMacSystemFont;}
-      code {font-family: Monaco, monospace;}
-      .test-case:before { content: "⚠️ "; }
-      .test-case.success:before { content: "✅ "; }
-      ul li {list-style-type: none;}
+      html * {font-family: -apple-system, BlinkMacSystemFont;}
+      code {font-family: "SF Mono", Consolas, monospace;}
     </style>
     <link rel="components" href="/test/components.js" />  
   </head>
   <body>
-    <domo-test></domo-test>
+    <test-suite></test-suite>
     <script type="module">
       import {init} from '/domo.js';
-      init(document.querySelector('domo-test'));
+      init(document.querySelector('test-suite'));
     </script>
   </body>
 </html>
