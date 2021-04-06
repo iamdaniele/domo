@@ -91,13 +91,7 @@ const init = async (el) => {
   const href = document.querySelector('link[rel="components"]')?.href;
   const path = el.getAttribute('module');
   let module;
-  try {
-    module = await import(href || path);    
-  } catch (e) { 
-    console.error(`${href || path}:`, e);
-    return;
-  }
-  
+  module = await import(href || path);  
   
   if (!registry.has(tag)) {
     try {
