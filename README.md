@@ -37,7 +37,7 @@ First, define an entry point for your component in your page. Components are imp
 
 You'll define the component's behavior by describing its state and the events that trigger a state change. In this simple example, you separate the render logic from the state management, and you'll describe what the component should render for your known states. Your component encapsulates a [shadow DOM](https://developer.mozilla.org/en-US/docs/Web/Web_Components/Using_shadow_DOM) into a [custom HTML element](https://developer.mozilla.org/en-US/docs/Web/Web_Components/Using_custom_elements).
 
-By default, Domo will look for a `<link rel="components">` to load controllers for your components. You can override this behavior by specifying a `module="/path/to/module.js` attribute in your custom element.
+By default, Domo will look for a `<link rel="components">` to load controllers for your components. You can override this behavior by specifying a `module="/path/to/module.js"` attribute in your custom element.
 
 Your component can react on any of the standard DOM events, if specified as `on-*`. In this example, the button will react on click, since we setup `on-click`. When a click happens, `FizzBuzz.increment()` is called.
 
@@ -84,7 +84,7 @@ export default class FizzBuzz extends Domo {
 Domo implements a DOM diffing algorithm to speed up rendering. When you build the HTML for your component in `render()`, you simply have to define what the component looks like. When `render()` triggers, Domo will determine what elements have changed by comparing your new component's HTML with the current DOM tree. Domo will render only the components that changed, and keep the rest of your component intact. Here's how the algorithm works:
 
 1. It removes unneeded nodes at the end of the current DOM (for example, nodes that have been removed in the new DOM).
-1. It adds new nodes to the end of the current DOM (for examples, nodes that have been added in the new DOM and weren't present before)
+1. It adds new nodes to the end of the current DOM (for example, nodes that have been added in the new DOM and weren't present before)
 1. It then performs a node-by-node comparison, and it replaces the old node with a new node if it has changed
 1. Recurse and repeat.
 
