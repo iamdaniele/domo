@@ -105,7 +105,7 @@ const setupListeners = (component, element) => {
       if (component[element.getAttribute(key)] instanceof Function) {
         element.addEventListener(key.replace('on-', ''), component[element.getAttribute(key)].bind(component), false)        
       } else {
-        throw new Error(`<${element.tagName.toLowerCase()} ${key}="${element.getAttribute(key)}"> references the undefined method ${element.getAttribute(key)}. Check that the method is defined in <${component.tagName.toLowerCase()}>.`);
+        // throw new Error(`<${element.tagName.toLowerCase()} ${key}="${element.getAttribute(key)}"> references the undefined method ${element.getAttribute(key)}. Check that the method is defined in <${component.tagName.toLowerCase()}>.`);
 
       }
     });
@@ -136,7 +136,9 @@ export default class extends HTMLElement {
         if (mutation.addedNodes) {
           Array
             .from(mutation.addedNodes)
-            .map(el => !!init(el) && !!el.getAttributeNames && setupListeners(this, el))
+            .map(el => {
+            return !!init(el) && !!el.getAttributeNames && setupListeners(this, el)
+          })
         }
         
         if (mutation.type === 'attributes' && mutation.target.tagName.includes('-') && mutation.attributeName.match(/data-/)) {
