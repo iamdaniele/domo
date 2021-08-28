@@ -75,7 +75,13 @@ const classNameFromTag = tag =>
 
 const init = async (el) => {
   if (!el.tagName?.includes('-')) {
-    return;
+    if (el.children) {
+      for (const child of el.children) {
+        await init(child);
+      }
+    }
+
+    return;  
   }
 
   const tag = el.tagName.toLowerCase();
@@ -112,14 +118,14 @@ const setupListeners = (component, element) => {
 }
 
 const render = element => {
-  if (element.componentWillRender.bind(element)()) {
-    const template = element.render.bind(element)();
+  if (element.componentWillRender.call(element)) {
+    const template = element.render.call(element);
     if (template instanceof DocumentFragment) {
       diff(element.shadowRoot, template);
     }
     
     if (template) {
-      element.componentDidRender.bind(element)();
+      element.componentDidRender.call(element);
     }
   }
 }
