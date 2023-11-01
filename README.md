@@ -14,7 +14,7 @@ Low overhead projects, protoypes and rapid application development may require t
 ## Domo principles
 
 - Zero or more components can be reactive.
-- You define components in HTML, and change their state using an Domo class
+- You define components in HTML, and change their state using a Domo class
 - Components render when their state changes (unless you prevent them from doing that)
 - Components are not opinionated and their architecture is flexible
 
