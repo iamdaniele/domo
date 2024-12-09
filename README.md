@@ -79,6 +79,63 @@ export default class FizzBuzz extends Domo {
 1. `render()` (optional) triggers on instantiation, and any time the state changed. In both cases, it will trigger only if `componentWillRender()` returns a non-falsey value. This method must return a `DocumentFragment` to render content. To do so, used the `html` tagged template to define your HTML and convert it automatically into a `DocumentFragment`. Return a falsey value to prevent rendering (this is useful when you don't need to change your component).
 1. `componentDidRender()` (optional) triggers after the component rendered, or if `render()` returned a non falsey value.
 
+## Dataset Changes and Parent Communication
+
+### Dataset Reactivity
+
+Components can react to changes in their `data-*` attributes through the `didUpdateDataset()` lifecycle method. When any `data-` attribute changes, this method is called with a mutation object containing:
+
+- `attributeName`: The name of the changed attribute
+- `datasetKey`: The camelCase version of the attribute name
+- `newValue`: The new value of the attribute
+
+```js
+didUpdateDataset(mutation) {
+  if (mutation.datasetKey === 'myValue') {
+    // React to data-my-value attribute change
+  }
+}
+```
+
+### Parent-Child Communication via Callbacks
+
+Domo provides a callback mechanism for child components to communicate with their parent components. This is achieved using `cb-` prefixed attributes:
+
+1. Define a callback method in the parent component:
+```js
+class ParentComponent extends Domo {
+  handleChildEvent(data) {
+    // Handle data from child
+  }
+}
+```
+
+2. Attach the callback to the child component using the `cb-` prefix:
+```js
+render() {
+  return html`
+    <child-component cb-on-event="handleChildEvent"></child-component>
+  `;
+}
+```
+
+3. The child component can then call this method:
+```js
+class ChildComponent extends Domo {
+  someMethod() {
+    this.onEvent('some data');  // This will call parent's handleChildEvent
+  }
+}
+```
+
+The callback system automatically:
+- Converts kebab-case attribute names to camelCase method names
+- Maintains proper `this` binding to the parent component
+- Supports both named functions and method references
+- Propagates through the component hierarchy to find the correct parent handler
+
+This pattern enables clean parent-child communication without tight coupling, allowing components to bubble up state changes and events to their parents while maintaining component independence.
+
 ## DOM diffing
 
 Domo implements a DOM diffing algorithm to speed up rendering. When you build the HTML for your component in `render()`, you simply have to define what the component looks like. When `render()` triggers, Domo will determine what elements have changed by comparing your new component's HTML with the current DOM tree. Domo will render only the components that changed, and keep the rest of your component intact. Here's how the algorithm works:
