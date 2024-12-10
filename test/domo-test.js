@@ -1,4 +1,4 @@
-import Domo, { html, diff } from '/domo.js'
+import Domo, { html } from '/domo.js'
 
 export default class DomoTest extends Domo {
   constructor() {

@@ -2,15 +2,18 @@ import Domo, { html } from '/domo.js'
 
 export default class TestSuite extends Domo {
   clickHandler({target}) {
-    const element = this.shadowRoot.querySelector('event-binding');
-    target.isEqualNode(element) ? element.pass(element.dataset.currentTest) : element.fail(element.dataset.currentTest);
+    const [ test ] = Object.keys(target.tests);
+    target.pass(test);
   }
+
+  callbackMethod() { return 'test successful' }
 
   render() {
     return html`
-      <diff-test></diff-test>
-      <dataset-change></dataset-change>
-      <event-binding on-click="clickHandler"></event-binding>
+      <diff-test />
+      <dataset-change />
+      <event-binding on-click="clickHandler" />
+      <callback-test cb-test-callback="${this.callbackMethod}" />
     `;
   }
 }

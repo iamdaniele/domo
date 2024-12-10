@@ -1,7 +1,7 @@
 import { DomoTest } from '/test/components.js';
 
 export default class DatasetChange extends DomoTest {
-  get name() { return 'Dataset change' }
+  get name() { return 'Dataset Change' }
   get tests() {
     return {
       'add property': {
